@@ -41,7 +41,6 @@ def parse_late_bus_data(soup, seattle_buses_json):
     late_buses = seattle_buses_json
     bus_pattern = re.compile("Route (\d+) – ([A-Za-z ]+) – (\d+) ([A-Za-z]+).*(am|mid|pm)")
     
-    print(bus_list)
     for bus in bus_list:
         bus_match = bus_pattern.search(bus)
         if bus_match:

@@ -29,7 +29,11 @@ def create_app(test_config=None):
     db.init_app(app)
     migrate.init_app(app, db)
 
-    from .routes import buses_bp, schools_bp
+    from app.models.late_bus import LateBus
+    from app.models.school import School
+
+    from .routes import buses_bp, schools_bp, home_bp
+    app.register_blueprint(home_bp)
     app.register_blueprint(buses_bp)
     app.register_blueprint(schools_bp)
 
