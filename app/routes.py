@@ -6,6 +6,7 @@ import requests
 import os
 from .data.scrape_bus_data import *
 
+
 home_bp = Blueprint("home", __name__, url_prefix="/")
 buses_bp = Blueprint("bus", __name__, url_prefix="/buses")
 schools_bp = Blueprint("task", __name__, url_prefix="/schools")
