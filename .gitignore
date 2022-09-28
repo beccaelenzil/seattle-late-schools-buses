@@ -6,3 +6,4 @@ venv
 
 # Ada Library Information
 *.ali
+*.pyc

@@ -4,17 +4,22 @@ from sqlalchemy.types import DateTime
 from sqlalchemy.sql.functions import now
 import requests
 import os
+from .data.scrape_bus_data import *
 
 buses_bp = Blueprint("bus", __name__, url_prefix="/buses")
 schools_bp = Blueprint("task", __name__, url_prefix="/schools")
 
 SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
-
 schools_url = os.path.join(SITE_ROOT, "data", "seattle_schools_dictionary.json")
 schools= json.load(open(schools_url))
-
 buses_url = os.path.join(SITE_ROOT, "data", "seattle_buses.json")
 buses= json.load(open(buses_url))
+
+
+url = 'https://www.seattleschools.org/departments/transportation/latebus'
+
+late_buses = parse_late_bus_data(scrape_late_bus_data(url), buses)
+buses = late_buses
 
 MONTHS = {
     "January": "1",
