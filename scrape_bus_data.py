@@ -34,6 +34,7 @@ def parse_late_bus_data(soup, seattle_buses_json):
     date_match = date_pattern.search(date)
 
     late_buses = seattle_buses_json
+    current_late_buses = []
     bus_pattern = re.compile("Route (\d+) – ([A-Za-z ]+) – (\d+) ([A-Za-z]+)")
     
     for bus in bus_list:
@@ -46,10 +47,11 @@ def parse_late_bus_data(soup, seattle_buses_json):
         bus_dictionary["school"] = bus_match[2]
         bus_dictionary["duration"] = bus_match[3]
         bus_dictionary["units"] = bus_match[4]
+        current_late_buses.append(bus_dictionary)
         if bus_dictionary not in late_buses:
             late_buses.append(bus_dictionary)
     
-    return late_buses
+    return late_buses, current_late_buses
 
 
 
@@ -58,10 +60,13 @@ with open('seattle_buses.json', 'r') as openfile:
 
 url = 'https://www.seattleschools.org/departments/transportation/latebus'
 
-late_buses = parse_late_bus_data(scape_late_bus_data(url), seattle_buses_json)
+late_buses, current_late_buses = parse_late_bus_data(scape_late_bus_data(url), seattle_buses_json)
 
-with open('seattle_buses.json', 'w') as outfile:
+with open('seattles_buses.json', 'w') as outfile:
     json.dump(late_buses, outfile)
+
+with open('current_seattle_buses.json', 'w') as outfile:
+    json.dump(current_late_buses, outfile)
 
 
 
