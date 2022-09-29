@@ -5,6 +5,7 @@ import datetime
 import re
 import json
 
+
  
 def scrape_late_bus_data(url): 
     # web scraping
@@ -41,6 +42,7 @@ def parse_late_bus_data(soup, seattle_buses_json):
     late_buses = seattle_buses_json
     bus_pattern = re.compile("Route (\d+) – ([A-Za-z ]+) – (\d+) ([A-Za-z]+).*(am|mid|pm)")
     
+    new_late_buses = []
     for bus in bus_list:
         bus_match = bus_pattern.search(bus)
         if bus_match:
@@ -55,7 +57,8 @@ def parse_late_bus_data(soup, seattle_buses_json):
             bus_dictionary["time"] = bus_match[5]
             if bus_dictionary not in late_buses:
                 late_buses.append(bus_dictionary)
+                new_late_buses.append(bus_dictionary)
     
-    return late_buses
+    return late_buses, new_late_buses
 
 

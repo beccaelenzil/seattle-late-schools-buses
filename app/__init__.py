@@ -4,6 +4,7 @@ from flask_migrate import Migrate
 import os
 from dotenv import load_dotenv
 from flask_cors import CORS
+from flask_seeder import FlaskSeeder
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -12,8 +13,9 @@ load_dotenv()
 def create_app(test_config=None):
     app = Flask(__name__)
     CORS(app)
+
     app.url_map.strict_slashes = False
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["SQLALCHEMY_TRACK_MODIFIsCATIONS"] = False
 
     if test_config is None:
         app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(

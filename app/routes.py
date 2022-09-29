@@ -5,6 +5,7 @@ from sqlalchemy.sql.functions import now
 import requests
 import os
 from .data.scrape_bus_data import *
+from .seeds.seed_schools import *
 
 
 home_bp = Blueprint("home", __name__, url_prefix="/")
@@ -42,15 +43,40 @@ MONTHS = {
 def homepage():
     return "Welcome to Seattle Late School Buses"
 
+@schools_bp.route("/seed", methods=["POST"])
+def seed_schools_route():
+    schools, schools_url = read_school_data()
+    late_buses, buses_url = read_bus_data()
+    seed_schools(list(schools.values()))
+    seed_buses(late_buses)
+    return "seed schools"
+
 @schools_bp.route("", methods=["GET"])
 def get_schools():
     schools, schools_url = read_school_data()
     return schools
 
+
+@schools_bp.route("/db", methods=["GET"])
+def get_schools_db():
+    school_dictionary = School.make_all_schools_dict()
+    return make_response(jsonify(school_dictionary), 200)
+
 @buses_bp.route("", methods=["GET"])
 def get_buses():
     late_buses, buses_url = read_bus_data()
     return make_response(jsonify(late_buses), 200)
+
+@buses_bp.route("/db", methods=["GET"])
+def get_buses_db():
+    late_buses = LateBus.query.all()
+    late_buses_json = []
+    for bus in late_buses:
+        bus_dict = bus.to_dict()
+        bus_dict["id"] = bus.id
+        bus_dict["school_id"] = bus.school_id
+        late_buses_json.append(bus_dict)
+    return make_response(jsonify(late_buses_json), 200)
 
 @buses_bp.route("/<month>/<day>/<year>", methods=["GET"])
 def get_specific_date_buses(day, month, year):
@@ -78,7 +104,48 @@ def get_todays_buses():
 def post_buses():
     late_buses, buses_url = read_bus_data()
     url = 'https://www.seattleschools.org/departments/transportation/latebus'
-    late_buses = parse_late_bus_data(scrape_late_bus_data(url), late_buses)
+    late_buses, new_late_buses = parse_late_bus_data(scrape_late_bus_data(url), late_buses)
     with open(buses_url, 'w') as f:
         json.dump(late_buses, f)
     return make_response(jsonify(late_buses), 201)
+
+@buses_bp.route("/db", methods=["POST"])
+def post_buses_to_db():
+    late_buses = LateBus.query.all()
+    late_buses_json = []
+    for bus in late_buses:
+        late_buses_json.append(bus.to_dict())
+
+    url = 'https://www.seattleschools.org/departments/transportation/latebus'
+    late_buses, new_late_buses = parse_late_bus_data(scrape_late_bus_data(url), late_buses_json)
+
+    school_dictionary = School.make_all_schools_dict()
+
+    for bus in new_late_buses:
+        try:
+            if bus["school"] in school_dictionary:
+                school_id = school_dictionary[bus["school"]]["id"]
+            else:
+                school_id = None
+                print(bus["school"], " not in schools database")
+            
+            new_bus = LateBus(
+                month=bus["month"],
+                day=["day"],
+                year=bus["year"],
+                route=bus["route"],
+                school=bus["school"],
+                duration=bus["duration"],
+                units=bus["units"],
+                time=bus["time"],
+                school_id=school_id
+                )
+
+            print("Adding Bus:", bus["route"])
+            db.session.add(new_bus)
+            db.session.commit()
+            return make_response(jsonify(new_late_buses), 201)
+        except Exception as error:
+            return make_response({"message": f"buses could not be added {error}"}, 400)
+
+    
