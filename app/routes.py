@@ -43,31 +43,14 @@ MONTHS = {
 def homepage():
     return "Welcome to Seattle Late School Buses"
 
-@schools_bp.route("/seed", methods=["POST"])
-def seed_schools_route():
-    schools, schools_url = read_school_data()
-    late_buses, buses_url = read_bus_data()
-    seed_schools(list(schools.values()))
-    seed_buses(late_buses)
-    return "seed schools"
 
 @schools_bp.route("", methods=["GET"])
-def get_schools():
-    schools, schools_url = read_school_data()
-    return schools
-
-
-@schools_bp.route("/db", methods=["GET"])
 def get_schools_db():
     school_dictionary = School.make_all_schools_dict()
     return make_response(jsonify(school_dictionary), 200)
 
-@buses_bp.route("", methods=["GET"])
-def get_buses():
-    late_buses, buses_url = read_bus_data()
-    return make_response(jsonify(late_buses), 200)
 
-@buses_bp.route("/db", methods=["GET"])
+@buses_bp.route("", methods=["GET"])
 def get_buses_db():
     late_buses = LateBus.query.all()
     late_buses_json = []
@@ -78,38 +61,7 @@ def get_buses_db():
         late_buses_json.append(bus_dict)
     return make_response(jsonify(late_buses_json), 200)
 
-@buses_bp.route("/<month>/<day>/<year>", methods=["GET"])
-def get_specific_date_buses(day, month, year):
-    late_buses, buses_url = read_bus_data()
-    date_buses = []
-    for bus in late_buses:
-        if bus["day"] == day and MONTHS[bus["month"]] == month and bus["year"] == year:
-            date_buses.append(bus)
-
-    return make_response(jsonify(date_buses), 200)
-
-@buses_bp.route("/today", methods=["GET"])
-def get_todays_buses():
-    late_buses, buses_url = read_bus_data()
-    today = datetime.datetime.now()
-    todays_buses = []
-    for bus in late_buses:
-        if bus["day"] == str(today.day) and MONTHS[bus["month"]] == str(today.month) and bus["year"] == str(today.year):
-            todays_buses.append(bus)
-
-    return make_response(jsonify(todays_buses), 200)
-
-
 @buses_bp.route("", methods=["POST"])
-def post_buses():
-    late_buses, buses_url = read_bus_data()
-    url = 'https://www.seattleschools.org/departments/transportation/latebus'
-    late_buses, new_late_buses = parse_late_bus_data(scrape_late_bus_data(url), late_buses)
-    with open(buses_url, 'w') as f:
-        json.dump(late_buses, f)
-    return make_response(jsonify(late_buses), 201)
-
-@buses_bp.route("/db", methods=["POST"])
 def post_buses_to_db():
     late_buses = LateBus.query.all()
     late_buses_json = []
@@ -147,5 +99,54 @@ def post_buses_to_db():
             return make_response(jsonify(new_late_buses), 201)
         except Exception as error:
             return make_response({"message": f"buses could not be added {error}"}, 400)
+#seed
 
+@schools_bp.route("/seed", methods=["POST"])
+def seed_schools_route():
+    schools, schools_url = read_school_data()
+    late_buses, buses_url = read_bus_data()
+    seed_schools(list(schools.values()))
+    seed_buses(late_buses)
+    return "seed schools"
     
+#json routes
+@schools_bp.route("/json", methods=["GET"])
+def get_schools():
+    schools, schools_url = read_school_data()
+    return schools
+
+
+@buses_bp.route("/json", methods=["GET"])
+def get_buses():
+    late_buses, buses_url = read_bus_data()
+    return make_response(jsonify(late_buses), 200)
+
+@buses_bp.route("/json", methods=["POST"])
+def post_buses():
+    late_buses, buses_url = read_bus_data()
+    url = 'https://www.seattleschools.org/departments/transportation/latebus'
+    late_buses, new_late_buses = parse_late_bus_data(scrape_late_bus_data(url), late_buses)
+    with open(buses_url, 'w') as f:
+        json.dump(late_buses, f)
+    return make_response(jsonify(late_buses), 201)
+
+@buses_bp.route("/json/today", methods=["GET"])
+def get_todays_buses():
+    late_buses, buses_url = read_bus_data()
+    today = datetime.datetime.now()
+    todays_buses = []
+    for bus in late_buses:
+        if bus["day"] == str(today.day) and MONTHS[bus["month"]] == str(today.month) and bus["year"] == str(today.year):
+            todays_buses.append(bus)
+
+    return make_response(jsonify(todays_buses), 200)
+
+@buses_bp.route("/json/<month>/<day>/<year>", methods=["GET"])
+def get_specific_date_buses(day, month, year):
+    late_buses, buses_url = read_bus_data()
+    date_buses = []
+    for bus in late_buses:
+        if bus["day"] == day and MONTHS[bus["month"]] == month and bus["year"] == year:
+            date_buses.append(bus)
+
+    return make_response(jsonify(date_buses), 200)
