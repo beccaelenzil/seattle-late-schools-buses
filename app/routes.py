@@ -71,7 +71,7 @@ def post_buses_to_db():
     url = 'https://www.seattleschools.org/departments/transportation/latebus'
     late_buses, new_late_buses = parse_late_bus_data(scrape_late_bus_data(url), late_buses_json)
     if not new_late_buses:
-        return make_response({"message":"no new buses"}, 404)
+        return make_response({"message":"no new buses"}, 200)
         
     school_dictionary = School.make_all_schools_dict()
 
