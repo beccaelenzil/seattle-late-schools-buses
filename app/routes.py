@@ -131,7 +131,7 @@ def post_buses_to_db():
             
             new_bus = LateBus(
                 month=bus["month"],
-                day=["day"],
+                day=bus["day"],
                 year=bus["year"],
                 route=bus["route"],
                 school=bus["school"],
