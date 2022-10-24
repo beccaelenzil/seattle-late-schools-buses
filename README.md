@@ -2,7 +2,7 @@
 
 This API scrapes data from [https://www.seattleschools.org/departments/transportation/latebus/](https://www.seattleschools.org/departments/transportation/latebus/)
 
-It is deployed [here](https://seattle-school-buses.herokuapp.com/)
+It is deployed here: [https://seattle-school-buses.herokuapp.com/](https://seattle-school-buses.herokuapp.com/)
 
 ## Quick Start
 
