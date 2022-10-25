@@ -16,7 +16,8 @@ It is deployed here: [https://seattle-school-buses.herokuapp.com/](https://seatt
     - `seattle_school_buses`
 1. Create a `.env` file with the following line:
     - `SQLALCHEMY_DATABASE_URI=postgresql+psycopg2://postgres:postgres@localhost:5432/seattle_school_buses`
-1. Run command: `flask db upgrade`
+1. Apply migrations to the database:
+    - `flask db upgrade`
 1. Run the server
     - `flask run`
 
