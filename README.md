@@ -32,3 +32,6 @@ It is deployed here: [https://seattle-school-buses.herokuapp.com/](https://seatt
 | - | `400`|Error response with information about the `error`. |`{"message": f"buses could not be added {error}"` |
 
 
+#### Resources
+
+File Structure: https://codersdiaries.com/blog/flask-project-structure
