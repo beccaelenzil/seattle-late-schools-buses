@@ -1,16 +1,12 @@
 import datetime
-from zoneinfo import ZoneInfo
-from flask import Blueprint, request, jsonify, json, Response, make_response
-from sqlalchemy.types import DateTime
-from sqlalchemy.sql.functions import now
-import requests
+from flask import Blueprint, jsonify, json, make_response
 import os
 from .data.scrape_bus_data import *
 from .seeds.seed_schools import *
 
 
-buses_json_bp = Blueprint("bus", __name__, url_prefix="/buses/json")
-schools_json_bp = Blueprint("task", __name__, url_prefix="/schools/json")
+buses_json_bp = Blueprint("bus_json", __name__, url_prefix="/buses-json")
+schools_json_bp = Blueprint("task_json", __name__, url_prefix="/schools-json")
 
 def read_school_data():
     SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
@@ -20,7 +16,7 @@ def read_school_data():
 
 def read_bus_data():
     SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
-    buses_url = os.path.join(SITE_ROOT, "data", "seattle_buses.json")
+    buses_url = os.path.join(SITE_ROOT, "data", "seattle_buses_nov10.json")
     buses= json.load(open(buses_url))
     return buses, buses_url
 
@@ -44,7 +40,7 @@ MONTHS = {
 def seed_schools_route():
     schools, schools_url = read_school_data()
     late_buses, buses_url = read_bus_data()
-    seed_schools(list(schools.values()))
+    seed_schools(schools)
     seed_buses(late_buses)
     return "seed schools"
     
@@ -64,7 +60,7 @@ def get_buses():
 def post_buses():
     late_buses, buses_url = read_bus_data()
     url = 'https://www.seattleschools.org/departments/transportation/latebus'
-    late_buses, new_late_buses = parse_late_bus_data(scrape_late_bus_data(url), late_buses)
+    late_buses, new_late_buses = parse_late_bus_data_json(scrape_late_bus_data(url), late_buses)
     with open(buses_url, 'w') as f:
         json.dump(late_buses, f)
     return make_response(jsonify(late_buses), 201)
