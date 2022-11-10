@@ -15,7 +15,7 @@ def create_app(test_config=None):
     CORS(app)
 
     app.url_map.strict_slashes = False
-    app.config["SQLALCHEMY_TRACK_MODIFIsCATIONS"] = False
+    app.config["SQLALCHEMY_TRACK_MODIFISCATIONS"] = False
 
     if test_config is None:
         app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
@@ -37,8 +37,11 @@ def create_app(test_config=None):
     from app.models.school import School
 
     from .routes import buses_bp, schools_bp, home_bp
+    from .json_routes import buses_json_bp, schools_json_bp
     app.register_blueprint(home_bp)
     app.register_blueprint(buses_bp)
     app.register_blueprint(schools_bp)
+    app.register_blueprint(buses_json_bp)
+    app.register_blueprint(schools_json_bp)
 
     return app
