@@ -98,11 +98,15 @@ def post_buses_to_db():
             print("Adding Bus:", bus["route"])
             db.session.add(new_bus)
             db.session.commit()
-            return make_response(jsonify(new_late_buses), 201)
         except Exception as error:
-            return make_response({"message": f"buses could not be added {error}"}, 400)
-#seed
+            print({"message": f"buses could not be added {error}"})
 
+    if not new_late_buses:
+        return make_response({"message":"no new buses"}, 200)
+        
+    return make_response(jsonify(new_late_buses), 201)
+
+#seed
 @schools_bp.route("/seed", methods=["POST"])
 def seed_schools_route():
     schools, schools_url = read_school_data()
