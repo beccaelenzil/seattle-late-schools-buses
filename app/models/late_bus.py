@@ -1,5 +1,5 @@
 from flask import current_app
-from app import db
+from database.database import db
 from .school import School
 
 

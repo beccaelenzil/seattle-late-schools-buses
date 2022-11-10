@@ -1,7 +1,6 @@
-from flask_seeder import Seeder
 from app.models.school import School
 from app.models.late_bus import LateBus
-from app import db
+from database.database import db
 
 
 def seed_schools(schools):

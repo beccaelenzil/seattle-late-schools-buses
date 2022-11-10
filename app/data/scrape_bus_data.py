@@ -2,9 +2,6 @@ from bs4 import BeautifulSoup
 import urllib.request as urllib
 import re
 
-
-
- 
 def scrape_late_bus_data(url): 
     # web scraping
     late_busses = url

@@ -1,6 +1,5 @@
 from flask import current_app
-from app import db
-
+from database.database import db
 
 class School(db.Model):
     id = db.Column(db.Integer, primary_key=True)
