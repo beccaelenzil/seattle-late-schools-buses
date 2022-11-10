@@ -1,12 +1,5 @@
-import datetime
 import os
-from zoneinfo import ZoneInfo
-
-import requests
-from flask import Blueprint, Response, json, jsonify, make_response, request
-from sqlalchemy.sql.functions import now
-from sqlalchemy.types import DateTime
-
+from flask import Blueprint, json, jsonify, make_response
 from .data.scrape_bus_data import *
 from .seeds.seed_schools import *
 
@@ -14,32 +7,6 @@ home_bp = Blueprint("home", __name__, url_prefix="/")
 buses_bp = Blueprint("bus", __name__, url_prefix="/buses")
 schools_bp = Blueprint("task", __name__, url_prefix="/schools")
 
-def read_school_data():
-    SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
-    schools_url = os.path.join(SITE_ROOT, "data", "seattle_schools_dictionary.json")
-    schools= json.load(open(schools_url))
-    return schools, schools_url
-
-def read_bus_data():
-    SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
-    buses_url = os.path.join(SITE_ROOT, "data", "seattle_buses.json")
-    buses= json.load(open(buses_url))
-    return buses, buses_url
-
-MONTHS = {
-    "January": "1",
-    "February": "2",
-    "March": "3",
-    "April": "4",
-    "May": "5",
-    "June": "6",
-    "July": "7",
-    "August": "8",
-    "September": "9",
-    "October": "10",
-    "November": "11",
-    "December": "12"
-}
 
 @home_bp.route("", methods=["GET"])
 def homepage():
@@ -62,6 +29,7 @@ def get_buses_db():
         bus_dict["school_id"] = bus.school_id
         late_buses_json.append(bus_dict)
     return make_response(jsonify(late_buses_json), 200)
+
 
 @buses_bp.route("", methods=["POST"])
 def post_buses_to_db():

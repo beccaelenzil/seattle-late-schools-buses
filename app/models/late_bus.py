@@ -15,6 +15,7 @@ class LateBus(db.Model):
     time = db.Column(db.String)
     school_id = db.Column(db.Integer, db.ForeignKey('school.id'), nullable=True)
 
+
     def to_dict(self):
         return {
                 "month": self.month,
@@ -26,6 +27,7 @@ class LateBus(db.Model):
                 "units": self.units,
                 "time": self.time,
         }
+
 
     @classmethod
     def create_bus(cls, bus_json):
@@ -48,6 +50,7 @@ class LateBus(db.Model):
             school_id=school_id
             )
         return new_bus
+
 
     @classmethod
     def get_todays_late_buses_from_database(cls, todays_late_buses):

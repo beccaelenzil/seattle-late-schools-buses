@@ -2,7 +2,7 @@ from app.models.school import School
 from app.models.late_bus import LateBus
 from app import db
 
-
+# some schools are duplicated - should be corrected with alternate names
 def seed_schools(schools):
     for school in schools:
         school_dict = schools[school]
@@ -16,8 +16,7 @@ def seed_schools(schools):
                     lat=school_dict["lat"],
                     lng=school_dict["lng"]
             )
-        
-        
+
             print("Adding school:", school)
             db.session.add(new_school)
             db.session.commit()
