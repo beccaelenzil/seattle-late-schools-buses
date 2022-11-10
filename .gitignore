@@ -7,4 +7,4 @@ venv
 # Ada Library Information
 *.ali
 *.pyc
-__pycache__
+__pycache__/
