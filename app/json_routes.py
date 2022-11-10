@@ -1,6 +1,7 @@
 import datetime
 from flask import Blueprint, jsonify, json, make_response
 import os
+from .data.scrape_bus_data_json import *
 from .data.scrape_bus_data import *
 from .seeds.seed_schools import *
 
