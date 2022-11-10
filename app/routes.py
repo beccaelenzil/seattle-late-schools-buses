@@ -1,12 +1,14 @@
 import datetime
-from flask import Blueprint, request, jsonify, json, Response, make_response
-from sqlalchemy.types import DateTime
-from sqlalchemy.sql.functions import now
-import requests
 import os
+from zoneinfo import ZoneInfo
+
+import requests
+from flask import Blueprint, Response, json, jsonify, make_response, request
+from sqlalchemy.sql.functions import now
+from sqlalchemy.types import DateTime
+
 from .data.scrape_bus_data import *
 from .seeds.seed_schools import *
-
 
 home_bp = Blueprint("home", __name__, url_prefix="/")
 buses_bp = Blueprint("bus", __name__, url_prefix="/buses")
@@ -63,46 +65,34 @@ def get_buses_db():
 
 @buses_bp.route("", methods=["POST"])
 def post_buses_to_db():
-    late_buses = LateBus.query.all()
-    late_buses_json = []
-    for bus in late_buses:
-        late_buses_json.append(bus.to_dict())
-
+    # scrape late bus data
     url = 'https://www.seattleschools.org/departments/transportation/latebus'
-    late_buses, new_late_buses = parse_late_bus_data(scrape_late_bus_data(url), late_buses_json)
-    if not new_late_buses:
-        return make_response({"message":"no new buses"}, 200)
+    todays_new_late_buses = parse_late_bus_data(scrape_late_bus_data(url))
+    if not todays_new_late_buses:
+        return make_response({"message":"no late buses today"}, 200)
+
+    # get date
+    todays_db_late_buses = LateBus.get_todays_late_buses_from_database(todays_new_late_buses)
+
+    new_late_buses = []
+    for bus in todays_new_late_buses:
+        if bus not in todays_db_late_buses:
+            try:
+                new_bus = LateBus.create_bus(bus)
+                new_late_buses.append(new_bus.to_dict())
+                print("Adding Bus:", bus["route"])
+                db.session.add(new_bus)
+                db.session.commit()  
+            except Exception as e:
+                print("bus could not be added")
+
+    if new_late_buses:
+        return make_response(jsonify(new_late_buses), 201)
+    else:
+        return make_response({"message":"todays late buses have already been added"}, 200)
+
         
-    school_dictionary = School.make_all_schools_dict()
-
-    for bus in new_late_buses:
-        try:
-            if bus["school"] in school_dictionary:
-                school_id = school_dictionary[bus["school"]]["id"]
-            else:
-                school_id = None
-                print(bus["school"], " not in schools database")
-            
-            new_bus = LateBus(
-                month=bus["month"],
-                day=bus["day"],
-                year=bus["year"],
-                route=bus["route"],
-                school=bus["school"],
-                duration=bus["duration"],
-                units=bus["units"],
-                time=bus["time"],
-                school_id=school_id
-                )
-
-            print("Adding Bus:", bus["route"])
-            db.session.add(new_bus)
-            db.session.commit()
-            return make_response(jsonify(new_late_buses), 201)
-        except Exception as error:
-            return make_response({"message": f"buses could not be added {error}"}, 400)
 #seed
-
 @schools_bp.route("/seed", methods=["POST"])
 def seed_schools_route():
     schools, schools_url = read_school_data()

@@ -1,9 +1,7 @@
 from bs4 import BeautifulSoup
 import urllib.request as urllib
-import os
-import datetime
 import re
-import json
+
 
 
  
@@ -14,7 +12,7 @@ def scrape_late_bus_data(url):
     soup = BeautifulSoup(page, "html.parser")
     return soup
 
-def parse_late_bus_data(soup, seattle_buses_json):
+def parse_late_bus_data(soup):
     paragraphs = soup.find_all('p')
     bus_pattern = re.compile("Route")
     date_pattern = re.compile(", 20")
@@ -39,7 +37,6 @@ def parse_late_bus_data(soup, seattle_buses_json):
     date_pattern = re.compile("(January|February|March|April|May|June|July|August|September|October|November|December) (\d+), (\d\d\d\d)")
     date_match = date_pattern.search(date)
 
-    late_buses = seattle_buses_json
     bus_pattern = re.compile("Route (\d+) – ([A-Za-z ]+) – (\d+) ([A-Za-z]+).*(am|mid|pm)")
     
     new_late_buses = []
@@ -55,10 +52,8 @@ def parse_late_bus_data(soup, seattle_buses_json):
             bus_dictionary["duration"] = bus_match[3]
             bus_dictionary["units"] = bus_match[4]
             bus_dictionary["time"] = bus_match[5]
-            if bus_dictionary not in late_buses:
-                late_buses.append(bus_dictionary)
-                new_late_buses.append(bus_dictionary)
+            new_late_buses.append(bus_dictionary)
     
-    return late_buses, new_late_buses
+    return new_late_buses
 
 
