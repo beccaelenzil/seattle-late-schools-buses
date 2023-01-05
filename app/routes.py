@@ -37,10 +37,11 @@ def post_buses_to_db():
     url = 'https://www.seattleschools.org/departments/transportation/latebus'
     todays_new_late_buses = parse_late_bus_data(scrape_late_bus_data(url))
     if not todays_new_late_buses:
-        return make_response({"message":"no late buses today"}, 200)
+        return make_response({"message": "no late buses today"}, 200)
 
     # get date
-    todays_db_late_buses = LateBus.get_todays_late_buses_from_database(todays_new_late_buses)
+    todays_db_late_buses = LateBus.get_todays_late_buses_from_database(
+        todays_new_late_buses)
 
     # add new buses to database
     new_late_buses = []
@@ -49,14 +50,13 @@ def post_buses_to_db():
             try:
                 new_bus = LateBus.create_bus(bus)
                 db.session.add(new_bus)
-                db.session.commit()  
+                db.session.commit()
                 print("Adding Bus:", bus["route"])
                 new_late_buses.append(new_bus.to_dict())
             except Exception as e:
                 print("bus could not be added")
 
     if not new_late_buses:
-        return make_response({"message":"todays late buses have already been added"}, 200)
-    
+        return make_response({"message": "todays late buses have already been added"}, 200)
+
     return make_response(jsonify(new_late_buses), 201)
-        

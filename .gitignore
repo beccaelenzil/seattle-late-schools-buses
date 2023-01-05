@@ -7,6 +7,10 @@ venv
 # Ada Library Information
 *.ali
 *.pyc
+<<<<<<< HEAD
 __pycache__/
 *__pycache__/
 temp.py
+=======
+__pycache__/
+>>>>>>> 6bd9215f3696ca9b2f69580c983929e69f88863c
