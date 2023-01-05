@@ -6,20 +6,19 @@ import re
 import json
 
 
- 
-def scrape_late_bus_data(url): 
+def scrape_late_bus_data(url):
     # web scraping
     late_busses = url
     page = urllib.urlopen(late_busses)
     soup = BeautifulSoup(page, "html.parser")
     return soup
 
+
 def parse_late_bus_data(soup, seattle_buses_json):
     paragraphs = soup.find_all('p')
     bus_pattern = re.compile("Route")
     date_pattern = re.compile(", 20")
 
-    
     bus_list = []
 
     time = "am"
@@ -30,18 +29,20 @@ def parse_late_bus_data(soup, seattle_buses_json):
             time = "mid"
         elif "PM Delays" == paragraph:
             time = "pm"
-        
+
         if bus_pattern.search(paragraph):
             bus_list.append(paragraph+" "+time)
         elif date_pattern.search(paragraph):
             date = paragraph
 
-    date_pattern = re.compile("(January|February|March|April|May|June|July|August|September|October|November|December) (\d+), (\d\d\d\d)")
+    date_pattern = re.compile(
+        "(January|February|March|April|May|June|July|August|September|October|November|December) (\d+)\S+, (\d\d\d\d)")
     date_match = date_pattern.search(date)
 
     late_buses = seattle_buses_json
-    bus_pattern = re.compile("Route (\d+) – ([A-Za-z ]+) – (\d+) ([A-Za-z]+).*(am|mid|pm)")
-    
+    bus_pattern = re.compile(
+        "Route (\d+) – ([A-Za-z ]+) – (\d+) ([A-Za-z]+).*(am|mid|pm)")
+
     new_late_buses = []
     for bus in bus_list:
         bus_match = bus_pattern.search(bus)
@@ -58,7 +59,5 @@ def parse_late_bus_data(soup, seattle_buses_json):
             if bus_dictionary not in late_buses:
                 late_buses.append(bus_dictionary)
                 new_late_buses.append(bus_dictionary)
-    
+
     return late_buses, new_late_buses
-
-
