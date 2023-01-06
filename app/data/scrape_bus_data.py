@@ -36,9 +36,12 @@ def parse_late_bus_data(soup):
 
     date_pattern = re.compile(
         "(January|February|March|April|May|June|July|August|September|October|November|December) (\d+), (\d\d\d\d)")
+    date_pattern2 = re.compile(
+        "(January|February|March|April|May|June|July|August|September|October|November|December) (\d+)\S+, (\d\d\d\d)")
 
     date_match = date_pattern.search(date)
-    print("*****", date_match, "*********")
+    if not date_match:
+        date_match = date_pattern2.search(date)
 
     bus_pattern = re.compile(
         "Route (\d+) – ([A-Za-z ]+) – (\d+) ([A-Za-z]+).*(am|mid|pm)")
