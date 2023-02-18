@@ -32,8 +32,6 @@ def parse_late_bus_data(soup):
         elif date_pattern.search(paragraph):
             date = paragraph
 
-    print("*****", date, "*********")
-
     date_pattern = re.compile(
         "(January|February|March|April|May|June|July|August|September|October|November|December) (\d+), (\d\d\d\d)")
     date_pattern2 = re.compile(
